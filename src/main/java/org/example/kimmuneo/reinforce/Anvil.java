@@ -1,9 +1,6 @@
 package org.example.kimmuneo.reinforce;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -12,13 +9,16 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 
 import java.util.*;
 
-import static org.example.kimmuneo.reinforce.AllTool.isTool;
+import static org.example.kimmuneo.reinforce.AllTool.*;
 
 public class Anvil implements Listener {
 
@@ -41,15 +41,86 @@ public class Anvil implements Listener {
 
     private double getBaseDamage(Material type) {
         return switch (type) {
-            case WOODEN_SWORD -> 4.0;
-            case STONE_SWORD -> 5.0;
+            case WOODEN_SWORD, GOLDEN_SWORD -> 4.0;
+            case STONE_SWORD, COPPER_SWORD -> 5.0;
             case IRON_SWORD -> 6.0;
-            case GOLDEN_SWORD -> 4.0;
             case DIAMOND_SWORD -> 7.0;
             case NETHERITE_SWORD -> 8.0;
             default -> 1.0;
         };
     }
+
+    private double getBaseArmor(Material type) {
+        return switch (type) {
+            // 가죽 갑옷
+            case LEATHER_HELMET -> 1.0;
+            case LEATHER_CHESTPLATE -> 3.0;
+            case LEATHER_LEGGINGS -> 2.0;
+            case LEATHER_BOOTS -> 1.0;
+
+            case COPPER_HELMET -> 2.0;
+            case COPPER_CHESTPLATE -> 4.0;
+            case COPPER_LEGGINGS -> 3.0;
+            case COPPER_BOOTS -> 1.0;
+
+            // 철 갑옷
+            case IRON_HELMET -> 2.0;
+            case IRON_CHESTPLATE -> 6.0;
+            case IRON_LEGGINGS -> 5.0;
+            case IRON_BOOTS -> 2.0;
+
+            // 다이아몬드 갑옷
+            case DIAMOND_HELMET -> 3.0;
+            case DIAMOND_CHESTPLATE -> 8.0;
+            case DIAMOND_LEGGINGS -> 6.0;
+            case DIAMOND_BOOTS -> 3.0;
+
+            // 네더라이트 갑옷
+            case NETHERITE_HELMET -> 3.0;
+            case NETHERITE_CHESTPLATE -> 8.0;
+            case NETHERITE_LEGGINGS -> 6.0;
+            case NETHERITE_BOOTS -> 3.0;
+
+            // 골드 갑옷
+            case GOLDEN_HELMET -> 2.0;
+            case GOLDEN_CHESTPLATE -> 5.0;
+            case GOLDEN_LEGGINGS -> 3.0;
+            case GOLDEN_BOOTS -> 1.0;
+
+            case CHAINMAIL_HELMET ->  2.0;
+            case CHAINMAIL_CHESTPLATE ->  5.0;
+            case CHAINMAIL_LEGGINGS ->  4.0;
+            case CHAINMAIL_BOOTS ->  1.0;
+
+            // 튜토리얼용 기본값
+            default -> 0.0;
+        };
+    }
+
+    private double getBaseArmorToughness(Material type) {
+        return switch (type) {
+            // 다이아몬드 갑옷
+            case DIAMOND_HELMET, DIAMOND_CHESTPLATE, DIAMOND_LEGGINGS, DIAMOND_BOOTS  -> 2.0;
+
+            // 네더라이트 갑옷
+            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> 3.0;
+
+            // 기본값
+            default -> 0.0;
+        };
+    }
+
+    private double getBaseKnockback_Resistance(Material type) {
+        return switch (type) {
+
+            // 네더라이트 갑옷
+            case NETHERITE_HELMET, NETHERITE_CHESTPLATE, NETHERITE_LEGGINGS, NETHERITE_BOOTS -> 1.0;
+
+            // 기본값
+            default -> 0.0;
+        };
+    }
+
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -68,7 +139,6 @@ public class Anvil implements Listener {
             ItemMeta fillerMeta = filler.getItemMeta();
             fillerMeta.setDisplayName(" ");
             filler.setItemMeta(fillerMeta);
-
 
             for (int i = 0; i < 9; i++) {
                 if (i == 4) continue;
@@ -90,9 +160,7 @@ public class Anvil implements Listener {
 
         // 슬롯 4의 아이템이 변경될 때 확률 정보 갱신
         if (slot == 4) {
-            Bukkit.getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("Reinforce"), () -> {
-                updateChanceDisplay(inv);
-            }, 1L);
+            Bukkit.getScheduler().runTaskLater(Bukkit.getPluginManager().getPlugin("Reinforce"), () -> updateChanceDisplay(inv), 1L);
             return;
         }
 
@@ -105,7 +173,7 @@ public class Anvil implements Listener {
             }
 
             ItemMeta meta = item.getItemMeta();
-            List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+            List<String> lore = meta != null && meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
             int currentStars = 0;
             int starIndex = -1;
@@ -185,8 +253,12 @@ public class Anvil implements Listener {
             String newLine = "§6" + "★".repeat(currentStars) + "§7" + "☆".repeat(10 - currentStars);
             if (starIndex >= 0) lore.set(starIndex, newLine);
             else lore.add(newLine);
+            if (meta == null) meta = item.getItemMeta();
             meta.setLore(lore);
             item.setItemMeta(meta);
+
+            // 별 수치에 따른 무기 데미지 보정 적용 (별 1개당 공격력 +1)
+            applyStarDamageModifier(item, currentStars);
 
             updateChanceDisplay(inv);
             event.setCancelled(true);
@@ -196,6 +268,9 @@ public class Anvil implements Listener {
         if (slot >= 0 && slot < 9 && slot != 4) event.setCancelled(true);
     }
 
+    /**
+     * 인벤토리의 slot4 아이템을 읽어 강화별 데미지 보정과 확률 표시를 갱신합니다.
+     */
     private void updateChanceDisplay(Inventory inv) {
         ItemStack item = inv.getItem(4);
 
@@ -213,6 +288,8 @@ public class Anvil implements Listener {
                     break;
                 }
             }
+            // 아이템이 있을 때는 별 수치에 따른 공격력 보정 적용
+            applyStarDamageModifier(item, currentStars);
         }
 
         if (currentStars >= 10) {
@@ -253,4 +330,93 @@ public class Anvil implements Listener {
     private void playDestorySound(Player player) {
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_DESTROY, 0.85f, 1.5f);
     }
+
+
+    private void applyStarDamageModifier(ItemStack item, int currentStars) {
+        if (item == null || item.getType() == Material.AIR) return;
+        if (isSword(item.getType())){
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) return;
+
+            // 기존 "star_bonus" AttributeModifier 제거 (공격력)
+            Collection<AttributeModifier> existing = meta.getAttributeModifiers(Attribute.ATTACK_DAMAGE);
+            if (existing != null && !existing.isEmpty()) {
+                for (AttributeModifier mod : new ArrayList<>(existing)) {
+                    NamespacedKey key = mod.getKey();
+                    if (key != null && key.getKey().equals("star_bonus")) {
+                        try { meta.removeAttributeModifier(Attribute.ATTACK_DAMAGE, mod); }
+                        catch (UnsupportedOperationException ignored) {}
+                    }
+                }
+            }
+
+            // 공격속도 고정 (1.6) 적용
+            Collection<AttributeModifier> existingSpeed = meta.getAttributeModifiers(Attribute.ATTACK_SPEED);
+            if (existingSpeed != null && !existingSpeed.isEmpty()) {
+                for (AttributeModifier mod : new ArrayList<>(existingSpeed)) {
+                    NamespacedKey key = mod.getKey();
+                    if (key != null && key.getKey().equals("fixed_attack_speed")) {
+                        try { meta.removeAttributeModifier(Attribute.ATTACK_SPEED, mod); }
+                        catch (UnsupportedOperationException ignored) {}
+                    }
+                }
+            }
+
+            NamespacedKey speedKey = new NamespacedKey("reinforce", "fixed_attack_speed");
+            AttributeModifier speedMod = new AttributeModifier(
+                    speedKey,
+                    -2.4,
+                    AttributeModifier.Operation.ADD_NUMBER,
+                    EquipmentSlotGroup.MAINHAND
+            );
+            meta.addAttributeModifier(Attribute.ATTACK_SPEED, speedMod);
+
+            // 별이 0이면 공격력 보정 없음
+            if (currentStars > 0) {
+                double bonus = getBaseDamage(item.getType()) + currentStars * 1.0 - 1;
+                NamespacedKey key = new NamespacedKey("reinforce", "star_bonus");
+                AttributeModifier starMod = new AttributeModifier(
+                        key,
+                        bonus,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.MAINHAND
+                );
+                meta.addAttributeModifier(Attribute.ATTACK_DAMAGE, starMod);
+            }
+
+            item.setItemMeta(meta);
+        }
+
+        if(isHelmet(item.getType())){
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) return;
+
+            Collection<AttributeModifier> existing = meta.getAttributeModifiers(Attribute.ARMOR_TOUGHNESS);
+            if (existing != null && !existing.isEmpty()) {
+                for (AttributeModifier mod : new ArrayList<>(existing)) {
+                    NamespacedKey key = mod.getKey();
+                    if (key != null && key.getKey().equals("star_bonus")) {
+                        try { meta.removeAttributeModifier(Attribute.ARMOR_TOUGHNESS, mod); }
+                        catch (UnsupportedOperationException ignored) {}
+                    }
+                }
+            }
+
+            // 별이 0이면  보정 없음
+            if (currentStars > 0) {
+                double bonus = getBaseArmorToughness(item.getType()) + currentStars * 1.0 - 1;
+                NamespacedKey key = new NamespacedKey("reinforce", "star_bonus");
+                AttributeModifier starMod = new AttributeModifier(
+                        key,
+                        bonus,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.MAINHAND
+                );
+                meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, starMod);
+            }
+
+            item.setItemMeta(meta);
+        }
+    }
 }
+
