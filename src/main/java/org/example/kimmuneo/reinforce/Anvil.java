@@ -39,6 +39,18 @@ public class Anvil implements Listener {
             {0.1, 0, 0.85, 0.05}
     };
 
+    private double getBaseDamage(Material type) {
+        return switch (type) {
+            case WOODEN_SWORD -> 4.0;
+            case STONE_SWORD -> 5.0;
+            case IRON_SWORD -> 6.0;
+            case GOLDEN_SWORD -> 4.0;
+            case DIAMOND_SWORD -> 7.0;
+            case NETHERITE_SWORD -> 8.0;
+            default -> 1.0;
+        };
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;

@@ -110,12 +110,31 @@ public class AllTool {
 
     );
 
-    public static final Set<Material> ALL_ENCHANT=
+    public static final Set<Material> ALL_ENCHANT =
             Stream.of(ALL_SWORD, ALL_ARMOR, ALL_AXE, ALL_PICKAXE, ALL_SHOVEL, ALL_HOE, ALL_TOOL)
                     .flatMap(Set::stream)
                     .collect(Collectors.toUnmodifiableSet());
 
     public static boolean isTool(Material material){
         return ALL_ENCHANT.contains(material);
+    }
+
+    public static boolean isSword(Material material){
+        return ALL_SWORD.contains(material);
+    }
+    public static boolean isArmor(Material material){
+        return ALL_ARMOR.contains(material);
+    }
+    public static boolean isAxe(Material material){
+        return ALL_AXE.contains(material);
+    }
+    public static boolean isPickaxe(Material material){
+        return ALL_PICKAXE.contains(material);
+    }
+    public static boolean isShovel(Material material){
+        return ALL_SHOVEL.contains(material);
+    }
+    public static boolean isHoe(Material material){
+        return ALL_HOE.contains(material);
     }
 }
