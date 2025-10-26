@@ -105,7 +105,8 @@ public class AllTool {
             Material.SHIELD,
             Material.FISHING_ROD,
             Material.SHEARS,
-            Material.FLINT_AND_STEEL
+            Material.FLINT_AND_STEEL,
+            Material.ELYTRA
 
     );
 
