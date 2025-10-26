@@ -23,21 +23,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 
-/*
- Optimized version of the original Anvil class.
-
- Key optimizations and changes:
- - Reduced duplicated code by extracting helpers (star parsing, spell lookup/consumption,
-   attribute modifier removal/addition).
- - Cached NamespacedKey instances and provided plugin reference (in constructor) to
-   use for scheduling and NamespacedKey creation.
- - Avoided scanning player's entire inventory repeatedly with utility method using .first().
- - Reused ItemMeta objects where possible and avoided unnecessary object creation.
- - Made armor handling detect any armor piece via material name suffix to avoid depending
-   on external helper methods for each armor piece.
- - Small code-style improvements for readability and maintainability.
- - Preserved original behavior and probabilities.
-*/
 
 import static org.example.kimmuneo.reinforce.AllTool.*;
 
@@ -69,6 +54,7 @@ public class Anvil implements Listener {
 
     // Cached keys for attribute modifiers
     private final NamespacedKey keyFixedAttackSpeed;
+    private final NamespacedKey keyFixedArmorTough;
     private final NamespacedKey keyFixedArmor;
     private final NamespacedKey keyFixedKnockback;
     private final NamespacedKey keyStarBonus;
@@ -76,6 +62,7 @@ public class Anvil implements Listener {
     public Anvil(Plugin plugin) {
         this.plugin = plugin;
         this.keyFixedAttackSpeed = new NamespacedKey(plugin, "fixed_attack_speed");
+        this.keyFixedArmorTough = new NamespacedKey(plugin, "fixed_armorTough");
         this.keyFixedArmor = new NamespacedKey(plugin, "fixed_armor");
         this.keyFixedKnockback = new NamespacedKey(plugin, "fixed_knockback");
         this.keyStarBonus = new NamespacedKey(plugin, "star_bonus");
@@ -455,12 +442,8 @@ public class Anvil implements Listener {
             item.setItemMeta(meta);
         }
 
-        // 방어구 처리: 모든 갑옷 조각을 이름 기준으로 검사
-        String name = item.getType().name();
-        boolean isArmorPiece = name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
-                || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");
 
-        if (isArmorPiece) {
+        if (isHelmet(item.getType())) {
             // ARMOR_TOUGHNESS star modifier 제거 (if present)
             removeModifiersByKey(meta, Attribute.ARMOR_TOUGHNESS, keyStarBonus);
 
@@ -472,7 +455,7 @@ public class Anvil implements Listener {
                         keyFixedArmor,
                         baseArmor,
                         AttributeModifier.Operation.ADD_NUMBER,
-                        EquipmentSlotGroup.MAINHAND
+                        EquipmentSlotGroup.HEAD
                 );
                 meta.addAttributeModifier(Attribute.ARMOR, armorMod);
             } catch (UnsupportedOperationException ignored) {}
@@ -485,7 +468,7 @@ public class Anvil implements Listener {
                         keyFixedKnockback,
                         baseKnockback,
                         AttributeModifier.Operation.ADD_NUMBER,
-                        EquipmentSlotGroup.MAINHAND
+                        EquipmentSlotGroup.HEAD
                 );
                 meta.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, knockbackMod);
             } catch (UnsupportedOperationException ignored) {}
@@ -498,13 +481,73 @@ public class Anvil implements Listener {
                             keyStarBonus,
                             bonus,
                             AttributeModifier.Operation.ADD_NUMBER,
-                            EquipmentSlotGroup.MAINHAND
+                            EquipmentSlotGroup.HEAD
                     );
                     meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, starMod);
                 } catch (UnsupportedOperationException ignored) {}
             }
 
             item.setItemMeta(meta);
+        }
+
+        if(isChestplate(item.getType())){
+            removeModifiersByKey(meta, Attribute.MAX_HEALTH, keyStarBonus);
+
+            // ARMOR_TOUGHNESS 고정 값 제거 및 추가
+            removeModifiersByKey(meta, Attribute.ARMOR_TOUGHNESS, keyFixedArmorTough);
+            try {
+                double baseArmorTough = getBaseArmorToughness(item.getType());
+                AttributeModifier armorToughMod = new AttributeModifier(
+                        keyFixedArmorTough,
+                        baseArmorTough,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.CHEST
+                );
+                meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, armorToughMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // ARMOR 고정 값 제거 및 추가
+            removeModifiersByKey(meta, Attribute.ARMOR, keyFixedArmor);
+            try {
+                double baseArmor = getBaseArmor(item.getType());
+                AttributeModifier armorMod = new AttributeModifier(
+                        keyFixedArmor,
+                        baseArmor,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.CHEST
+                );
+                meta.addAttributeModifier(Attribute.ARMOR, armorMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // KNOCKBACK_RESISTANCE 고정 제거 및 추가
+            removeModifiersByKey(meta, Attribute.KNOCKBACK_RESISTANCE, keyFixedKnockback);
+            try {
+                double baseKnockback = getBaseKnockbackResistance(item.getType());
+                AttributeModifier knockbackMod = new AttributeModifier(
+                        keyFixedKnockback,
+                        baseKnockback,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.CHEST
+                );
+                meta.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, knockbackMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // 별 보정 추가 (MAX_HEALTH)
+            if (currentStars > 0) {
+                try {
+                    double bonus =  currentStars * 2.0 - 1;
+                    AttributeModifier starMod = new AttributeModifier(
+                            keyStarBonus,
+                            bonus,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            EquipmentSlotGroup.CHEST
+                    );
+                    meta.addAttributeModifier(Attribute.MAX_HEALTH, starMod);
+                } catch (UnsupportedOperationException ignored) {}
+            }
+
+            item.setItemMeta(meta);
+
         }
     }
 
