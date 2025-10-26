@@ -427,7 +427,7 @@ public class Anvil implements Listener {
             // 별 보정 (별 하나당 +1 공격력, baseDamage used to align original logic)
             removeModifiersByKey(meta, Attribute.ATTACK_DAMAGE, keyStarBonus);
             if (currentStars > 0) {
-                double bonus = getBaseDamage(item.getType()) + currentStars * 1.0 - 1;
+                double bonus = getBaseDamage(item.getType()) + currentStars * 1.0;
                 try {
                     AttributeModifier starMod = new AttributeModifier(
                             keyStarBonus,
@@ -476,7 +476,7 @@ public class Anvil implements Listener {
             // 별 보정 추가 (ARMOR_TOUGHNESS)
             if (currentStars > 0) {
                 try {
-                    double bonus = getBaseArmorToughness(item.getType()) + currentStars * 1.0 - 1;
+                    double bonus = getBaseArmorToughness(item.getType()) + currentStars * 1.0;
                     AttributeModifier starMod = new AttributeModifier(
                             keyStarBonus,
                             bonus,
@@ -535,7 +535,7 @@ public class Anvil implements Listener {
             // 별 보정 추가 (MAX_HEALTH)
             if (currentStars > 0) {
                 try {
-                    double bonus =  currentStars * 2.0 - 1;
+                    double bonus =  currentStars * 2.0;
                     AttributeModifier starMod = new AttributeModifier(
                             keyStarBonus,
                             bonus,
@@ -543,6 +543,113 @@ public class Anvil implements Listener {
                             EquipmentSlotGroup.CHEST
                     );
                     meta.addAttributeModifier(Attribute.MAX_HEALTH, starMod);
+                } catch (UnsupportedOperationException ignored) {}
+            }
+
+            item.setItemMeta(meta);
+
+        }
+
+        if(isLeggings(item.getType())){
+            removeModifiersByKey(meta, Attribute.ARMOR, keyStarBonus);
+
+            // ARMOR_TOUGHNESS 고정 값 제거 및 추가
+            removeModifiersByKey(meta, Attribute.ARMOR_TOUGHNESS, keyFixedArmorTough);
+            try {
+                double baseArmorTough = getBaseArmorToughness(item.getType());
+                AttributeModifier armorToughMod = new AttributeModifier(
+                        keyFixedArmorTough,
+                        baseArmorTough,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.LEGS
+                );
+                meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, armorToughMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // KNOCKBACK_RESISTANCE 고정 제거 및 추가
+            removeModifiersByKey(meta, Attribute.KNOCKBACK_RESISTANCE, keyFixedKnockback);
+            try {
+                double baseKnockback = getBaseKnockbackResistance(item.getType());
+                AttributeModifier knockbackMod = new AttributeModifier(
+                        keyFixedKnockback,
+                        baseKnockback,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.LEGS
+                );
+                meta.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, knockbackMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // 별 보정 추가 (ARMOR)
+            if (currentStars > 0) {
+                try {
+                    double bonus =  currentStars * 1.0;
+                    AttributeModifier starMod = new AttributeModifier(
+                            keyStarBonus,
+                            bonus,
+                            AttributeModifier.Operation.ADD_NUMBER,
+                            EquipmentSlotGroup.LEGS
+                    );
+                    meta.addAttributeModifier(Attribute.ARMOR, starMod);
+                } catch (UnsupportedOperationException ignored) {}
+            }
+
+            item.setItemMeta(meta);
+
+        }
+
+        if(isBoots(item.getType())){
+            removeModifiersByKey(meta, Attribute.MOVEMENT_SPEED, keyStarBonus);
+
+            // ARMOR_TOUGHNESS 고정 값 제거 및 추가
+            removeModifiersByKey(meta, Attribute.ARMOR_TOUGHNESS, keyFixedArmorTough);
+            try {
+                double baseArmorTough = getBaseArmorToughness(item.getType());
+                AttributeModifier armorToughMod = new AttributeModifier(
+                        keyFixedArmorTough,
+                        baseArmorTough,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.FEET
+                );
+                meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, armorToughMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // ARMOR 고정 값 제거 및 추가
+            removeModifiersByKey(meta, Attribute.ARMOR, keyFixedArmor);
+            try {
+                double baseArmor = getBaseArmor(item.getType());
+                AttributeModifier armorMod = new AttributeModifier(
+                        keyFixedArmor,
+                        baseArmor,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.FEET
+                );
+                meta.addAttributeModifier(Attribute.ARMOR, armorMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // KNOCKBACK_RESISTANCE 고정 제거 및 추가
+            removeModifiersByKey(meta, Attribute.KNOCKBACK_RESISTANCE, keyFixedKnockback);
+            try {
+                double baseKnockback = getBaseKnockbackResistance(item.getType());
+                AttributeModifier knockbackMod = new AttributeModifier(
+                        keyFixedKnockback,
+                        baseKnockback,
+                        AttributeModifier.Operation.ADD_NUMBER,
+                        EquipmentSlotGroup.FEET
+                );
+                meta.addAttributeModifier(Attribute.KNOCKBACK_RESISTANCE, knockbackMod);
+            } catch (UnsupportedOperationException ignored) {}
+
+            // 별 보정 추가 (MOVEMENT_SPEED)
+            if (currentStars > 0) {
+                try {
+                    double bonus =  currentStars * 0.05;
+                    AttributeModifier starMod = new AttributeModifier(
+                            keyStarBonus,
+                            bonus,
+                            AttributeModifier.Operation.MULTIPLY_SCALAR_1,
+                            EquipmentSlotGroup.FEET
+                    );
+                    meta.addAttributeModifier(Attribute.MOVEMENT_SPEED, starMod);
                 } catch (UnsupportedOperationException ignored) {}
             }
 
