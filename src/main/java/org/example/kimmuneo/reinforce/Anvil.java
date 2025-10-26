@@ -18,6 +18,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
+import static org.example.kimmuneo.reinforce.AllTool.isTool;
+
 public class Anvil implements Listener {
 
     String anvilName = "스타 포스";
@@ -102,6 +104,12 @@ public class Anvil implements Listener {
                     starIndex = i;
                     break;
                 }
+            }
+
+            if (!isTool(item.getType())){
+                player.sendMessage("§c인챈트가 가능한 아이템이 아닙니다!");
+                event.setCancelled(true);
+                return;
             }
 
             if (currentStars >= 10) {
@@ -199,7 +207,7 @@ public class Anvil implements Listener {
             lore.add("§a최대 강화 단계입니다!");
         } else {
             double[] rate = rates[currentStars];
-            lore.add("§6" + (currentStars + 1) +  "강");
+            lore.add("§6" + (currentStars) +  "강");
             lore.add("§a성공 확률: §f" + (int) (rate[0] * 100) + "%");
             lore.add("§7실패 확률: §f" + (int) (rate[1] * 100) + "%");
             lore.add("§e하락 확률: §f" + (int) (rate[2] * 100) + "%");

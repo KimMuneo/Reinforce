@@ -19,10 +19,14 @@ import org.bukkit.enchantments.Enchantment;
 
 import java.util.*;
 
+import static org.example.kimmuneo.reinforce.AllTool.isTool;
+
 public class EnchantTable implements Listener {
 
     String tableName = "마법 부여 재설정";
     ChatColor tableColor = ChatColor.BLACK;
+
+
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
@@ -71,6 +75,13 @@ public class EnchantTable implements Listener {
                             }
                         }
                     }
+
+                    if (!isTool(item.getType())){
+                        player.sendMessage("§c인챈트가 가능한 아이템이 아닙니다!");
+                        event.setCancelled(true);
+                        return;
+                    }
+
                     if (foundBook == null) {
                         player.sendMessage("§c마법 부여 주문서가 필요합니다!");
                         event.setCancelled(true);
