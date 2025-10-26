@@ -55,7 +55,7 @@ public class Scarecrow implements Listener, TabExecutor {
 
         // 플레이어 앞에 소환 (플레이어 눈높이 기준)
         Location spawnLoc = player.getEyeLocation().add(player.getLocation().getDirection().normalize().multiply(distance));
-        spawnLoc.setY(player.getLocation().getY() - 1.5); // 바닥에 세우고 싶으면 높이 보정
+        spawnLoc.setY(player.getLocation().getY()); // 바닥에 세우고 싶으면 높이 보정
 
         Entity ent = player.getWorld().spawnEntity(spawnLoc, EntityType.ARMOR_STAND);
         if (!(ent instanceof ArmorStand)) {
