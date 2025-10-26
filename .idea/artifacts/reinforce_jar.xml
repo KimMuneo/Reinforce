@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="reinforce:jar">
+    <output-path>$USER_HOME$/OneDrive/바탕 화면/플러그인/새 폴더 (4)/plugins</output-path>
+    <root id="archive" name="reinforce.jar">
+      <element id="module-output" name="reinforce.main" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src/main/resources" />
+    </root>
+  </artifact>
+</component>

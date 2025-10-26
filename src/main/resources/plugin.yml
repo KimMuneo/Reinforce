@@ -1,0 +1,9 @@
+name: Reinforce
+main: org.example.kimmuneo.reinforce.Reinforce
+version: 1.0
+api-version: 1.13
+commands:
+  reinforcebook:
+    description: "마법 부여 주문서를 지급합니다."
+  spelltrace:
+    description: "주문의 흔적을 지급합니다."
