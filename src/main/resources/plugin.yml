@@ -7,3 +7,12 @@ commands:
     description: "마법 부여 주문서를 지급합니다."
   spelltrace:
     description: "주문의 흔적을 지급합니다."
+  scarecrow:
+    description: "허수아비(Scarecrow)를 소환합니다. /scarecrow [거리]"
+    usage: /scarecrow [distance]
+    permission: scarecrow.use
+
+permissions:
+  scarecrow.use:
+    description: "허수아비 소환 명령어 사용 권한"
+    default: true
