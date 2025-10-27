@@ -61,15 +61,28 @@ public class ReinforceLogic {
 
         ItemUtils.consumeSpell(player, spellSlot);
         double[] rate = rates[currentStars];
+        double success = rate[0], fail = rate[1], down = rate[2], destroy = rate[3];
+
         double rand = Math.random();
 
-        if (rand <= rate[0]) {
+        if (rand <= success) {
             currentStars++;
             player.sendMessage("§a★ 강화 성공! 현재 " + currentStars + "성!");
             SoundUtils.playForceSound(player);
-        } else if (rand <= rate[0] + rate[1]) {
+
+            // ★ 10성 달성 시 내구도 무한(Unbreakable) 적용
+            if (currentStars >= 10) {
+                ItemMeta meta = item.getItemMeta();
+                if (meta != null) {
+                    meta.setUnbreakable(true);
+                    meta.setLore(Arrays.asList("§b이 아이템은 §610성§b으로 완성되었습니다!", "§7(내구도 무한)"));
+                    item.setItemMeta(meta);
+                }
+                player.sendMessage("§b✨ 아이템이 완성되었습니다! 이제 부서지지 않습니다!");
+            }
+        } else if (rand <= success + fail) {
             player.sendMessage("§7강화 실패... 변화 없음.");
-        } else if (rand <= rate[0] + rate[1] + rate[2]) {
+        } else if (rand <= success + fail + down) {
             if (currentStars > 0) currentStars--;
             player.sendMessage("§e☆ 강화 하락! 현재 " + currentStars + "성!");
         } else {
