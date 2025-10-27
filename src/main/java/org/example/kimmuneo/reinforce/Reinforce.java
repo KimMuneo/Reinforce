@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.Plugin;
+import org.example.kimmuneo.reinforce.Anvil1.AnvilListener;
 
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class Reinforce extends JavaPlugin {
 
         // 리스너 등록 (Anvil 최적화 버전은 생성자에 Plugin을 요구하므로 this 전달)
         Bukkit.getPluginManager().registerEvents(new EnchantTable(), plugin);
-        Bukkit.getPluginManager().registerEvents(new Anvil(plugin), plugin);
+        Bukkit.getPluginManager().registerEvents(new AnvilListener(plugin), plugin);
 
         // Scarecrow를 커맨드 실행자와 리스너로 등록
         Scarecrow scarecrow = new Scarecrow(this);

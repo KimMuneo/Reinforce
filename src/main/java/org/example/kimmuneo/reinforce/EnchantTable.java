@@ -1,7 +1,6 @@
 package org.example.kimmuneo.reinforce;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.EventHandler;
@@ -112,7 +111,7 @@ public class EnchantTable implements Listener {
                 // 메타를 명시적으로 다시 설정 (명확성을 위해)
                 item.setItemMeta(meta);
                 // 소리 재생
-                playForceSound(player);
+                SoundUtils.playEnchantSound(player);
             }
 
             event.setCancelled(true);
@@ -140,9 +139,7 @@ public class EnchantTable implements Listener {
         }
     }
 
-    private void playForceSound(Player player) {
-        player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.85f, 1.5f);
-    }
+
 
     // --- 헬퍼 / 핵심 로직 ---
 
