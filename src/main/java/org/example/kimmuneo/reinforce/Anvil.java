@@ -642,7 +642,7 @@ public class Anvil implements Listener {
             // 별 보정 추가 (MOVEMENT_SPEED)
             if (currentStars > 0) {
                 try {
-                    double bonus =  currentStars * 0.05;
+                    double bonus =  currentStars * 0.025;
                     AttributeModifier starMod = new AttributeModifier(
                             keyStarBonus,
                             bonus,
