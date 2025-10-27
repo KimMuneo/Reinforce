@@ -236,6 +236,17 @@ public class Anvil implements Listener {
                 currentStars++;
                 player.sendMessage("§a★ 강화 성공! 현재 " + currentStars + "성!");
                 playForceSound(player);
+
+                // ★ 10성 달성 시 내구도 무한(Unbreakable) 적용
+                if (currentStars >= 10) {
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta != null) {
+                        meta.setUnbreakable(true);
+                        meta.setLore(Arrays.asList("§b이 아이템은 §610성§b으로 완성되었습니다!", "§7(내구도 무한)"));
+                        item.setItemMeta(meta);
+                    }
+                    player.sendMessage("§b✨ 아이템이 완성되었습니다! 이제 부서지지 않습니다!");
+                }
             } else if (rand <= success + fail) {
                 player.sendMessage("§7강화 실패... 변화가 없습니다.");
             } else if (rand <= success + fail + down) {
