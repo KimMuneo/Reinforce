@@ -1,6 +1,5 @@
-package org.example.kimmuneo.reinforce.Anvil1;
+package org.example.kimmuneo.reinforce.Anvil;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.*;

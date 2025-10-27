@@ -1,4 +1,4 @@
-package org.example.kimmuneo.reinforce.Anvil1;
+package org.example.kimmuneo.reinforce.Anvil;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

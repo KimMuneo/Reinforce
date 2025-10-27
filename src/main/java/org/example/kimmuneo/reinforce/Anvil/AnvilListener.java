@@ -1,4 +1,4 @@
-package org.example.kimmuneo.reinforce.Anvil1;
+package org.example.kimmuneo.reinforce.Anvil;
 
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -10,7 +10,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import org.example.kimmuneo.reinforce.Anvil1.ReinforceLogic;
 
 import java.util.*;
 
