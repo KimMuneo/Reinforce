@@ -72,10 +72,17 @@ public class EnchantTable implements Listener {
 
         int slot = event.getRawSlot();
 
+
         // 입력 슬롯에서 우클릭했을 때만 리롤 실행 허용
         if (slot == INPUT_SLOT && event.isRightClick()) {
             Player player = (Player) event.getWhoClicked();
             ItemStack item = event.getInventory().getItem(INPUT_SLOT);
+
+            if (hasLoreLine(item, "★") ) {
+                player.sendMessage("§c이미 강화가 진행된 상태입니다!");
+                event.setCancelled(true);
+                return;
+            }
 
             if (item == null || item.getType() == Material.AIR) {
                 event.setCancelled(true);
@@ -266,4 +273,24 @@ public class EnchantTable implements Listener {
         // 실패 시 최대 레벨 반환
         return maxLevel;
     }
+
+    public boolean hasLoreLine(ItemStack item, String targetLine) {
+        if (item == null || item.getType().isAir()) return false;
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasLore()) return false;
+
+        List<String> lore = meta.getLore();
+        if (lore == null) return false;
+
+        // 한 줄이라도 targetLine을 포함하면 true
+        for (String line : lore) {
+            if (ChatColor.stripColor(line).contains(ChatColor.stripColor(targetLine))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }
